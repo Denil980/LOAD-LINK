@@ -21,9 +21,9 @@ router.post('/signup', upload.fields([
 
         // Collect uploaded document paths
         const documents = {};
-        if (req.files?.selfie) documents.selfie = `/uploads/${req.files.selfie[0].filename}`;
-        if (req.files?.mParivahan) documents.mParivahan = `/uploads/${req.files.mParivahan[0].filename}`;
-        if (req.files?.ownerCert) documents.ownerCert = `/uploads/${req.files.ownerCert[0].filename}`;
+        if (req.files?.selfie) documents.selfie = req.files.selfie[0].path || `/uploads/${req.files.selfie[0].filename}`;
+        if (req.files?.mParivahan) documents.mParivahan = req.files.mParivahan[0].path || `/uploads/${req.files.mParivahan[0].filename}`;
+        if (req.files?.ownerCert) documents.ownerCert = req.files.ownerCert[0].path || `/uploads/${req.files.ownerCert[0].filename}`;
 
         user = new User({ phone, password, role, fullName, vehicleNo, rcNo, companyAddress, documents });
         await user.save();
