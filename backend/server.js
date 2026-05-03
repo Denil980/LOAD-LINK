@@ -37,4 +37,8 @@ if (process.env.NODE_ENV === 'production') {
     app.get('/', (req, res) => res.send('LoadLink API Running ✅'));
 }
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+}
+
+module.exports = app;
