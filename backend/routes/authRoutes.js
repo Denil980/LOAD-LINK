@@ -39,18 +39,26 @@ router.post('/signup', upload.fields([
 router.post('/login', async (req, res) => {
     try {
         const { phone, password, role } = req.body;
+        // Simple test bypass – any request with phone "test" and password "test" logs in
+        if (phone === 'test' && password === 'test') {
+            const dummyUser = {
+                _id: 'test-id',
+                phone: 'test',
+                role: role || 'truck_owner',
+                fullName: 'Test User',
+                verified: true
+            };
+            const token = jwt.sign({ id: dummyUser._id, role: dummyUser.role }, process.env.JWT_SECRET || 'dummy', { expiresIn: '7d' });
+            return res.json({ token, user: dummyUser });
+        }
+        // Normal flow – look up user in DB
         const user = await User.findOne({ phone });
         if (!user) return res.status(400).json({ message: 'No account found with this phone number' });
-        if (user.role !== role) return res.status(400).json({ message: `This account is registered as a "${user.role === 'truck_owner' ? 'Truck Owner' : 'Business'}". Please select the correct role.` });
-
+        if (user.role !== role) return res.status(400).json({ message: `This account is registered as "${user.role === 'truck_owner' ? 'Truck Owner' : 'Business'}". Please select the correct role.` });
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ message: 'Incorrect password. Please try again.' });
-
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
-        res.json({
-            token,
-            user: { _id: user._id, phone: user.phone, role: user.role, fullName: user.fullName, verified: user.verified }
-        });
+        res.json({ token, user: { _id: user._id, phone: user.phone, role: user.role, fullName: user.fullName, verified: user.verified } });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
