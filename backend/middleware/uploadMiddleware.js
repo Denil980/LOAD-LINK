@@ -1,10 +1,11 @@
 const multer = require('multer');
 const path = require('path');
+const os = require('os');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 
-// Ensure uploads directory exists
-const uploadDir = path.join(__dirname, '..', 'uploads');
+// Use OS temporary directory (Vercel provides write access to /tmp)
+const uploadDir = path.join(os.tmpdir(), 'loadlink_uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 const storage = multer.diskStorage({
